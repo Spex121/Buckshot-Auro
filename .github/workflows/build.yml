@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ created ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - run: pip install pyinstaller
+      - run: pyinstaller --onefile --console auro.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: auro-linux
+          path: dist/auro
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - run: pip install pyinstaller
+      - run: pyinstaller --onefile --console auro.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: auro-windows
+          path: dist/auro.exe
+
