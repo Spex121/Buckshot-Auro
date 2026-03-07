@@ -1,7 +1,9 @@
 <div align="center">
 
-# 🔫 Auro Script
+#  Auro Script
 ### Terminal assistant for Buckshot Roulette
+
+📥 [Download latest release](https://github.com/Spex121/Buckshot-Auro/releases/latest)
 
 [English](#english) · [Русский](#русский)
 
