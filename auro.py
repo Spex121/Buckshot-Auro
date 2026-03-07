@@ -6,7 +6,7 @@ def quitapp():
     print("\nQuit...\n")
     exit()
 def clear():
-    os.system('clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 print("    Developed by Spex121\n")
 print("=" * 30)
 print("    Buckshot Auro Script\n")
