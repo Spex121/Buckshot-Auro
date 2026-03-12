@@ -6,7 +6,7 @@ import time
 language = {
     "en": {
         "syntax": 'Syntax: "Combat/Blank"',
-        "start": "Let's start the game!",
+        "start": "Let's start the game!\n",
         "help": "Plus - combat\nMinus - blank\n",
         "shot": "Shot?: ",
         "combat_gone": "\nThe combat is gone!\n",
@@ -14,10 +14,13 @@ language = {
         "result": lambda combat, blank: f"Combat: {combat}\nBlank: {blank}",
         "chance_c": lambda chance_c: f"Combat chance: {chance_c}%",
         "chance_b": lambda chance_b: f"Blank chance: {chance_b}%",
+        "round_over": "\nThe round is over!\n",
+        "history": "History: ",
+        "continue": "Continue? (yes or no): ",
     },
     "ru": {
         "syntax": 'Синтаксис: "Боевые/Холостые"',
-        "start": "Начинаем игру!",
+        "start": "Начинаем игру!\n",
         "help": "Плюс - боевой\nМинус - холостой\n",
         "shot": "Выстрел?: ",
         "combat_gone": "\nБоевых нет!\n",
@@ -25,6 +28,9 @@ language = {
         "result": lambda combat, blank: f"Боевые: {combat}\nХолостые: {blank}",
         "chance_c": lambda chance_c: f"Шанс на боевой: {chance_c}%",
         "chance_b": lambda chance_b: f"Шанс на холостой: {chance_b}%",
+        "round_over": "\nРаунд окончен!\n",
+        "history": "История: ",
+        "continue": "Продолжить? (yes or no): ",
     },
 }
 
@@ -101,8 +107,9 @@ def main():
             combat = int(parts[0])
             blank = int(parts[1])
             total = combat + blank
-            print(t["start"])
             print(t["help"])
+            print(t["start"])
+            h = []
             while total > 0:
                 user_input = input(t["shot"])
                 clear()
@@ -110,6 +117,7 @@ def main():
                     if combat > 0:
                         combat -= 1
                         total -= 1
+                        h.append("| + |")
                     elif combat == 0:
                         print(t["combat_gone"])
                     print(t["result"](combat, blank))
@@ -117,6 +125,7 @@ def main():
                     if blank > 0:
                         blank -= 1
                         total -= 1
+                        h.append("| - |")
                     elif blank == 0:
                         print(t["blank_gone"])
                     print(t["result"](combat, blank))
@@ -127,6 +136,14 @@ def main():
                     chance_b = round(blank / total * 100, 1)
                     print(t["chance_c"](chance_c))
                     print(t["chance_b"](chance_b))
+            print(t["round_over"])
+            print(t["history"] + (" ".join(h)))
+            while True:
+                user_input = input(t["continue"])
+                if user_input == "yes" or user_input == "y":
+                    break
+                elif user_input == "no" or user_input == "n":
+                    quitapp()
         except (ValueError, IndexError, KeyboardInterrupt):
             print("\n Error!")
             try:
