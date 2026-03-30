@@ -9,7 +9,7 @@ import requests
 # Updater
 def updater():
     print("Checking for updates...")
-    current_version = "0.1.3-alpha"
+    current_version = "v0.1.3-alpha"
     url = "https://api.github.com/repos/Spex121/Buckshot-Auro/releases"
     response = requests.get(url)
     releases_date = response.json()
