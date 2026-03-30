@@ -1,6 +1,66 @@
 # Hello!
 import os
 import time
+import sys
+import subprocess
+import requests
+
+
+# Updater
+def updater():
+    print("Checking for updates...")
+    current_version = "0.1.3-alpha"
+    url = "https://api.github.com/repos/Spex121/Buckshot-Auro/releases"
+    response = requests.get(url)
+    releases_date = response.json()
+    latest_release = releases_date[0]
+    new_version = latest_release["tag_name"]
+    if new_version == current_version:
+        return
+    is_prerelease = latest_release["prerelease"]
+    print(f"New version: {new_version}")
+    if is_prerelease == True:
+        is_prerelease = "pre"
+    else:
+        is_prerelease = "stable"
+    print(f"Type: {is_prerelease}")
+    while True:
+        try:
+            user_input = input(
+                "\nA new version is out! Would you like to update? (yes/no): "
+            )
+            break
+        except KeyboardInterrupt:
+            continue
+        except EOFError:
+            continue
+    if user_input.lower() == "yes":
+        print("Downloading...")
+        is_windows = os.name == "nt"
+        download_url = None
+        filename = None
+        for asset in latest_release["assets"]:
+            asset_name = asset["name"]
+            if is_windows and asset_name.endswith(".exe"):
+                download_url = asset["browser_download_url"]
+                filename = "auro_temp.exe"
+                break
+            elif not is_windows and not asset_name.endswith(".exe"):
+                download_url = asset["browser_download_url"]
+                filename = "auro_temp"
+                break
+        file_response = requests.get(download_url)
+        errorD = False
+        if file_response.status_code != 200:
+            print("ERROR\n")
+            errorD = True
+        if errorD == False:
+            with open(filename, "wb") as f:
+                f.write(file_response.content)
+            print("OK\n")
+            print("Starting helper_update")
+            subprocess.run(["python", "helper.py", filename])
+
 
 # Localization
 language = {
@@ -38,7 +98,7 @@ language = {
 # Quit app
 def quitapp():
     print("\nQuit...\n")
-    exit()
+    sys.exit()
 
 
 # Clear terminal
@@ -47,7 +107,7 @@ def clear():
 
 
 # STARTING
-print("    Developed by Spex121\n")
+print("\n    Developed by Spex121\n")
 print("=" * 30)
 print("    Buckshot Auro Script\n")
 print("=" * 30)
@@ -57,7 +117,7 @@ print("=" * 30)
 def setup():
     global t
     while True:
-        print("    Available language")
+        print("\n    Available language")
         print(" 1. English")
         print(" 2. Russian\n")
         try:
@@ -157,5 +217,6 @@ def main():
 
 
 # General
+updater()
 setup()
 main()
