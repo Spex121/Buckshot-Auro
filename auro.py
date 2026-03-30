@@ -1,9 +1,15 @@
-# Hello!
+# imports
 import os
 import time
 import sys
 import subprocess
 import requests
+from rich.console import Console
+from rich.progress import Progress, TransferSpeedColumn, BarColumn, DownloadColumn
+
+
+# Base variable
+console = Console()
 
 
 # Updater
@@ -11,7 +17,15 @@ def updater():
     print("Checking for updates...")
     current_version = "v0.1.3-alpha"
     url = "https://api.github.com/repos/Spex121/Buckshot-Auro/releases"
-    response = requests.get(url)
+    try:
+        response = requests.get(url, timeout=6)
+    except requests.exceptions.ConnectTimeout:
+        console.print("\n[red]Timeout for Github[/red]\n")
+        return
+    except requests.exceptions.ConnectionError:
+        console.print("\n[red]ConnectionError[/red]\n")
+        return
+
     releases_date = response.json()
     latest_release = releases_date[0]
     new_version = latest_release["tag_name"]
@@ -26,16 +40,16 @@ def updater():
     print(f"Type: {is_prerelease}")
     while True:
         try:
-            user_input = input(
-                "\nA new version is out! Would you like to update? (yes/no): "
+            console.print(
+                "\n[yellow]A new version is out! Would you like to update? (yes/no):[/yellow]",
+                end="",
             )
+            user_input = input(" ")
             break
-        except KeyboardInterrupt:
-            continue
-        except EOFError:
+        except KeyboardInterrupt, EOFError:
             continue
     if user_input.lower() == "yes":
-        print("Downloading...")
+        console.print("[yellow]Starting...[/yellow]")
         is_windows = os.name == "nt"
         download_url = None
         filename = None
@@ -44,22 +58,39 @@ def updater():
             if is_windows and asset_name.endswith(".exe"):
                 download_url = asset["browser_download_url"]
                 filename = "auro_temp.exe"
+                total = asset["size"]
                 break
             elif not is_windows and not asset_name.endswith(".exe"):
                 download_url = asset["browser_download_url"]
                 filename = "auro_temp"
+                total = asset["size"]
                 break
-        file_response = requests.get(download_url)
-        errorD = False
-        if file_response.status_code != 200:
-            print("ERROR\n")
-            errorD = True
-        if errorD == False:
-            with open(filename, "wb") as f:
-                f.write(file_response.content)
-            print("OK\n")
-            print("Starting helper_update")
-            subprocess.run(["python", "helper.py", filename])
+        try:
+            response = requests.get(
+                download_url, stream=True, allow_redirects=True, timeout=6
+            )
+            if response.status_code != 200:
+                console.print("[red]ERROR[/red]\n")
+                return
+            with Progress(
+                "[progress.description]{task.description}",
+                BarColumn(),
+                DownloadColumn(),
+                TransferSpeedColumn(),
+            ) as progress:
+                task = progress.add_task("Downloading...", total=total)
+                with open(filename, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                        progress.update(task, advance=len(chunk))
+        except requests.exceptions.RequestException, KeyboardInterrupt, EOFError:
+            console.print("[red]ERROR[/red]")
+        console.print("[green]OK[/green]\n")
+        print("Starting helper_update")
+        if not is_windows:
+            subprocess.run(["python", "helper", filename])
+        else:
+            subprocess.run(["python", "helper.exe", filename])
 
 
 # Localization
@@ -97,7 +128,7 @@ language = {
 
 # Quit app
 def quitapp():
-    print("\nQuit...\n")
+    console.print("\n[blue]Quit[/blue]...\n")
     sys.exit()
 
 
@@ -137,13 +168,13 @@ def setup():
                 clear()
                 break
             else:
-                print(" ERROR!")
+                console.print(" [red]ERROR![/red]")
                 print(" en or ru")
                 time.sleep(2)
                 clear()
                 continue
         except (ValueError, KeyboardInterrupt):
-            print(" ERROR")
+            console.print(" [red]ERROR[/red]")
             print("en or ru\n")
             try:
                 time.sleep(1)
@@ -205,7 +236,7 @@ def main():
                 elif user_input == "no" or user_input == "n":
                     quitapp()
         except (ValueError, IndexError, KeyboardInterrupt):
-            print("\n Error!")
+            console.print("\n [red]Error![/red]")
             try:
                 time.sleep(2)
             except KeyboardInterrupt:
