@@ -14,12 +14,17 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - run: pip install pyinstaller
-      - run: pyinstaller --onefile --console auro.py
+      - run: pip install pyinstaller requests
+      - run: pyinstaller --onefile --hidden-import=requests --console auro.py
+      - run: pyinstaller --onefile --hidden-import=requests --console helper.py
       - uses: actions/upload-artifact@v4
         with:
           name: auro-linux
           path: dist/auro
+      - uses: actions/upload-artifact@v4
+        with:
+          name: helper-linux
+          path: dist/helper
 
   build-windows:
     runs-on: windows-latest
@@ -28,10 +33,14 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - run: pip install pyinstaller
-      - run: pyinstaller --onefile --console auro.py
+      - run: pip install pyinstaller requests
+      - run: pyinstaller --onefile --hidden-import=requests --console auro.py
+      - run: pyinstaller --onefile --hidden-import=requests --console helper.py
       - uses: actions/upload-artifact@v4
         with:
           name: auro-windows
           path: dist/auro.exe
-
+      - uses: actions/upload-artifact@v4
+        with:
+          name: helper-windows
+          path: dist/helper.exe
