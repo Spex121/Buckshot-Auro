@@ -6,7 +6,6 @@ import subprocess
 import requests
 from rich.console import Console
 from rich.progress import Progress, TransferSpeedColumn, BarColumn, DownloadColumn
-import pywinctl
 
 # Base variable
 console = Console()
@@ -148,6 +147,8 @@ print("=" * 30)
 
 # Overlay
 def overlay(t):
+    import pywinctl
+
     win = pywinctl.getActiveWindow()
     win.alwaysOnTop(True)
     console.print(t["overlay"])

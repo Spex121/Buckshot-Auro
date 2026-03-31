@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 import shutil
-from rich import console
+from rich.console import Console
 
 console = Console()
 
