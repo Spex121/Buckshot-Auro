@@ -89,10 +89,10 @@ def updater():
         console.print("[green]OK[/green]\n")
         print("Starting helper_update")
         if not is_windows:
-            subprocess.run(["helper", filename])
+            subprocess.Popen(["helper", filename])
             quitapp()
         else:
-            subprocess.run(["helper.exe", filename])
+            subprocess.Popen(["helper.exe", filename])
             quitapp()
 
 
