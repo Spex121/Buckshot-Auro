@@ -14,7 +14,7 @@ console = Console()
 # Updater
 def updater():
     print("Checking for updates...")
-    current_version = "v0.1.4-alpha"
+    current_version = "v0.1.4-alpha-fix"
     url = "https://api.github.com/repos/Spex121/Buckshot-Auro/releases"
     try:
         response = requests.get(url, timeout=6)
@@ -45,11 +45,11 @@ def updater():
                 "\n[yellow]A new version is out! Would you like to update? (yes/no):[/yellow]",
                 end="",
             )
-            user_input = input(" ").lower
+            user_input = input(" ")
             break
         except (KeyboardInterrupt, EOFError):
             continue
-    if user_input == "yes" or "y":
+    if user_input == "yes" or user_input == "y":
         console.print("[yellow]Starting...[/yellow]")
         is_windows = os.name == "nt"
         download_url = None
@@ -171,15 +171,13 @@ def setup():
         print(" 1. English")
         print(" 2. Russian\n")
         try:
-            lang = input("en or ru: ").lower
+            lang = input("en or ru: ")
             if lang == "en" or lang == "1":
                 lang = "en"
                 console.print(" [green]The language is set![/green]")
                 t = language[lang]
                 time.sleep(1)
-                user_input = input(
-                    "Do you want to launch the overlay? (yes or no): "
-                ).lower
+                user_input = input("Do you want to launch the overlay? (yes or no): ")
                 if user_input == "yes" or user_input == "y":
                     console.print("[green]Starting...[/green]")
                     time.sleep(1)
@@ -193,7 +191,7 @@ def setup():
                 console.print(" [green]Язык настроен![/green]")
                 time.sleep(1)
                 t = language[lang]
-                user_input = input("Вы хотите запустить оверлей? (yes или no): ").lower
+                user_input = input("Вы хотите запустить оверлей? (yes или no): ")
                 if user_input == "yes" or user_input == "y":
                     console.print("[green]Запускаю...[/green]")
                     time.sleep(1)
