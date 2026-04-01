@@ -24,7 +24,9 @@ def updater():
     except requests.exceptions.ConnectionError:
         console.print("\n[red]ConnectionError[/red]\n")
         return
-
+    if response.status_code != 200:
+        console.print(f"[red]Github API error: {response.status_code}[/red]")
+        return
     releases_date = response.json()
     latest_release = releases_date[0]
     new_version = latest_release["tag_name"]
@@ -45,7 +47,7 @@ def updater():
             )
             user_input = input(" ")
             break
-        except KeyboardInterrupt, EOFError:
+        except (KeyboardInterrupt, EOFError):
             continue
     if user_input.lower() == "yes":
         console.print("[yellow]Starting...[/yellow]")
@@ -82,14 +84,14 @@ def updater():
                     for chunk in response.iter_content(chunk_size=8192):
                         f.write(chunk)
                         progress.update(task, advance=len(chunk))
-        except requests.exceptions.RequestException, KeyboardInterrupt, EOFError:
+        except (requests.exceptions.RequestException, KeyboardInterrupt, EOFError):
             console.print("[red]ERROR[/red]")
         console.print("[green]OK[/green]\n")
         print("Starting helper_update")
         if not is_windows:
-            subprocess.run(["python", "helper", filename])
+            subprocess.run(["helper", filename])
         else:
-            subprocess.run(["python", "helper.exe", filename])
+            subprocess.run(["helper.exe", filename])
 
 
 # Localization
@@ -111,7 +113,7 @@ language = {
     },
     "ru": {
         "syntax": 'Синтаксис: "Боевые/Холостые"',
-        "start": "Начинаем игру!\n",
+        "start": "[green]Начинаем игру![/green]\n",
         "help": "Плюс - боевой\nМинус - холостой\n",
         "shot": "Выстрел?: ",
         "combat_gone": "\n[red]Боевых нет![/red]\n",
@@ -119,7 +121,7 @@ language = {
         "result": lambda combat, blank: f"Боевые: {combat}\nХолостые: {blank}",
         "chance_c": lambda chance_c: f"Шанс на боевой: {chance_c}%",
         "chance_b": lambda chance_b: f"Шанс на холостой: {chance_b}%",
-        "round_over": "\nРаунд окончен!\n",
+        "round_over": "\n[yellow]Раунд окончен![/yellow]\n",
         "history": "История: ",
         "continue": "Продолжить? (yes or no): ",
         "overlay": "[green]Оверлей запущен![/green]",
@@ -147,13 +149,17 @@ print("=" * 30)
 
 # Overlay
 def overlay(t):
-    import pywinctl
+    try:
+        import pywinctl
 
-    win = pywinctl.getActiveWindow()
-    win.alwaysOnTop(True)
-    console.print(t["overlay"])
-    time.sleep(1)
-    clear()
+        win = pywinctl.getActiveWindow()
+        win.alwaysOnTop(True)
+        console.print(t["overlay"])
+        time.sleep(1)
+        clear()
+    except Exception:
+        console.print_exception()
+        console.print("[red]Failed to launch overlay![/red]")
 
 
 # Settings setup
@@ -272,10 +278,9 @@ def main():
             continue
         except EOFError:
             quitapp()
-        return t
 
 
-# General
+# GeneraL
 updater()
 setup()
 main()
