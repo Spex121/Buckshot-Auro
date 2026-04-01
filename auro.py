@@ -166,6 +166,7 @@ def overlay(t):
 
 # Settings setup
 def setup():
+    global t
     while True:
         print("\n    Available language")
         print(" 1. English")
