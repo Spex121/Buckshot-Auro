@@ -90,8 +90,10 @@ def updater():
         print("Starting helper_update")
         if not is_windows:
             subprocess.run(["helper", filename])
+            quitapp()
         else:
             subprocess.run(["helper.exe", filename])
+            quitapp()
 
 
 # Localization
