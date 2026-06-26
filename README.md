@@ -16,6 +16,8 @@
 **Auro Script** is a lightweight terminal tool for **Buckshot Roulette**.  
 It tracks shells in the chamber and displays real-time shot probability after every move.
 
+***ATTENTION! This is a student project! Please go easy on me...***
+
 ### ⚙️ Features
 - 🔴 Track live and blank shells
 - 📊 Real-time shot probability in %
@@ -46,12 +48,15 @@ It tracks shells in the chamber and displays real-time shot probability after ev
 3. Press `+` for live round, `-` for blank
 4. Watch probability update in real time
 
+*The overlay does not work on systems running Wayland! If you are using such a system, please pin the window to the top yourself by right-clicking on the window title!*
 ---
 
 ## Русский
 
 **Auro Script** — лёгкий терминальный инструмент для **Buckshot Roulette**.  
 Отслеживает патроны в барабане и показывает шансы в реальном времени после каждого выстрела.
+
+***ВНИМАНИЕ! Это мой учебный проект! Пожалуйста не судите строго...***
 
 ### ⚙️ Умеет
 - 🔴 Считать боевые и холостые патроны
@@ -83,6 +88,7 @@ It tracks shells in the chamber and displays real-time shot probability after ev
 3. Нажми `+` боевой, `-` холостой
 4. Смотри шансы в реальном времени
 
+*Оверлей не работает на системах с Wayland! Если вы обладатель данной системы, то пожалуйста закрепите окно по верх сами используя правую кнопку мыши по имени окна!*
 ---
 
 <div align="center">

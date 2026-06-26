@@ -14,7 +14,7 @@ console = Console()
 # Updater
 def updater():
     print("Checking for updates...")
-    current_version = "v0.1.4-alpha-fix"
+    current_version = "v0.1.5-alpha"
     url = "https://api.github.com/repos/Spex121/Buckshot-Auro/releases"
     try:
         response = requests.get(url, timeout=6)
@@ -89,7 +89,7 @@ def updater():
         console.print("[green]OK[/green]\n")
         print("Starting helper_update")
         if not is_windows:
-            subprocess.Popen(["helper", filename])
+            subprocess.Popen(["./helper", filename])
             quitapp()
         else:
             subprocess.Popen(["helper.exe", filename])
@@ -112,6 +112,7 @@ language = {
         "history": "History: ",
         "continue": "Continue? (yes or no): ",
         "overlay": "[green]The overlay is running![/green]",
+        "overlayE": "[red]ERROR! Your system does not support overlays![/red]",
     },
     "ru": {
         "syntax": 'Синтаксис: "Боевые/Холостые"',
@@ -127,6 +128,7 @@ language = {
         "history": "История: ",
         "continue": "Продолжить? (yes or no): ",
         "overlay": "[green]Оверлей запущен![/green]",
+        "overlayE": "\n[red]ОШИБКА! Ваша система не поддерживает оверлей![/red]",
     },
 }
 
@@ -152,6 +154,12 @@ print("=" * 30)
 # Overlay
 def overlay(t):
     try:
+        if os.name != "nt":
+            is_wayland = os.environ.get("WAYLAND_DISPLAY")
+            if is_wayland == "wayland-0":
+                console.print(t["overlayE"])
+                time.sleep(3)
+                return
         import pywinctl
 
         win = pywinctl.getActiveWindow()
@@ -190,8 +198,8 @@ def setup():
             elif lang == "ru" or lang == "2":
                 lang = "ru"
                 console.print(" [green]Язык настроен![/green]")
-                time.sleep(1)
                 t = language[lang]
+                time.sleep(1)
                 user_input = input("Вы хотите запустить оверлей? (yes или no): ")
                 if user_input == "yes" or user_input == "y":
                     console.print("[green]Запускаю...[/green]")
@@ -226,13 +234,13 @@ def main():
         print("BuckShot Auro Script")
         try:
             clear()
-            print(t["syntax"])
+            console.print(t["syntax"])
             user_input = input("*: ")
             parts = user_input.split("/")
             combat = int(parts[0])
             blank = int(parts[1])
             total = combat + blank
-            print(t["help"])
+            console.print(t["help"])
             console.print(t["start"])
             h = []
             while total > 0:
@@ -260,8 +268,8 @@ def main():
                 if total > 0:
                     chance_c = round(combat / total * 100, 1)
                     chance_b = round(blank / total * 100, 1)
-                    print(t["chance_c"](chance_c))
-                    print(t["chance_b"](chance_b))
+                    console.print(t["chance_c"](chance_c))
+                    console.print(t["chance_b"](chance_b))
             console.print(t["round_over"])
             print(t["history"] + (" ".join(h)))
             while True:
