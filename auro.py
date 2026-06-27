@@ -4,17 +4,54 @@ import time
 import sys
 import subprocess
 import requests
+import json
 from rich.console import Console
 from rich.progress import Progress, TransferSpeedColumn, BarColumn, DownloadColumn
+from rich.prompt import Confirm
 
 # Base variable
 console = Console()
+current_version = "v0.1.5-alpha"
+config_app = {
+    "language": "",
+    "pre_update": None,
+    "style": None,
+    "smart_shot_prediction": None,
+    "shot_history": None,
+}
+t = {}
+
+
+# Config
+def config():
+    global t, config_app, DATA_PATH
+    if getattr(sys, "frozen", False):
+        BASE_DIR = os.path.dirname(sys.executable)
+    else:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DATA_PATH = os.path.join(BASE_DIR, "config.json")
+
+    copy_config_app = config_app
+    try:
+        with open(DATA_PATH, "r", encoding="utf-8") as f:
+            copy_config_app = json.load(f)
+    except FileNotFoundError:
+        console.print("[red]Configuration file not found![/red]")
+        time.sleep(1)
+    except json.JSONDecodeError:
+        console.print("\n[red]The configuration file is invalid![/red]\n")
+        console.print_exception()
+        time.sleep(1.6)
+    if copy_config_app:
+        config_app = copy_config_app
+    lang_code = config_app["language"]
+    if lang_code:
+        t = language[lang_code]
 
 
 # Updater
 def updater():
     print("Checking for updates...")
-    current_version = "v0.1.5-alpha"
     url = "https://api.github.com/repos/Spex121/Buckshot-Auro/releases"
     try:
         response = requests.get(url, timeout=6)
@@ -33,12 +70,14 @@ def updater():
     if new_version == current_version:
         return
     is_prerelease = latest_release["prerelease"]
-    print(f"New version: {new_version}")
-    if is_prerelease == True:
-        is_prerelease = "pre"
+    if is_prerelease:
+        if not config_app["pre_update"]:
+            return
+        is_prerelease = "[yellow]pre[/yellow]"
     else:
-        is_prerelease = "stable"
-    print(f"Type: {is_prerelease}")
+        is_prerelease = "[green]stable[/green]"
+    console.print(f"New version: {new_version}")
+    console.print(f"Type: {is_prerelease}")
     while True:
         try:
             console.print(
@@ -100,6 +139,7 @@ def updater():
 language = {
     "en": {
         "syntax": 'Syntax: "Combat/Blank"',
+        "syntax2": 'Syntax: "Blank/Combat"',
         "start": "[green]Let's start the game![/green]\n",
         "help": "Plus - combat\nMinus - blank\n",
         "shot": "Shot?: ",
@@ -113,9 +153,15 @@ language = {
         "continue": "Continue? (yes or no): ",
         "overlay": "[green]The overlay is running![/green]",
         "overlayE": "[red]ERROR! Your system does not support overlays![/red]",
+        "language": "[green]The language is set![/green]",
+        "pre_update": "Would you like to receive pre-releases?",
+        "style": "Select a syntax style:",
+        "smart": "Would you like to enable the smart shot prediction feature?",
+        "shot_history": "Do you want to enable round history?",
     },
     "ru": {
         "syntax": 'Синтаксис: "Боевые/Холостые"',
+        "syntax2": 'Синтаксис: "Холостые/Боевые"',
         "start": "[green]Начинаем игру![/green]\n",
         "help": "Плюс - боевой\nМинус - холостой\n",
         "shot": "Выстрел?: ",
@@ -129,6 +175,11 @@ language = {
         "continue": "Продолжить? (yes or no): ",
         "overlay": "[green]Оверлей запущен![/green]",
         "overlayE": "\n[red]ОШИБКА! Ваша система не поддерживает оверлей![/red]",
+        "language": "[green]Язык настроен![/green]",
+        "pre_update": "Хотите получать предварительные обновления?",
+        "style": "Выберите стиль синтаксиса:",
+        "smart": "Вы хотите включить функцию умного прогнозирования выстрела?",
+        "shot_history": "Вы хотите включить историю раунда?",
     },
 }
 
@@ -174,57 +225,63 @@ def overlay(t):
 
 # Settings setup
 def setup():
-    global t
+    global t, config_app
     while True:
-        print("\n    Available language")
-        print(" 1. English")
-        print(" 2. Russian\n")
-        try:
-            lang = input("en or ru: ")
-            if lang == "en" or lang == "1":
-                lang = "en"
-                console.print(" [green]The language is set![/green]")
-                t = language[lang]
-                time.sleep(1)
-                user_input = input("Do you want to launch the overlay? (yes or no): ")
-                if user_input == "yes" or user_input == "y":
-                    console.print("[green]Starting...[/green]")
-                    time.sleep(1)
-                    overlay(t)
-                else:
-                    console.print("[red]Okay[/red]")
-                    time.sleep(1)
-                break
-            elif lang == "ru" or lang == "2":
-                lang = "ru"
-                console.print(" [green]Язык настроен![/green]")
-                t = language[lang]
-                time.sleep(1)
-                user_input = input("Вы хотите запустить оверлей? (yes или no): ")
-                if user_input == "yes" or user_input == "y":
-                    console.print("[green]Запускаю...[/green]")
-                    time.sleep(1)
-                    overlay(t)
-                else:
-                    console.print("[red]Окей[/red]")
-                    time.sleep(1)
-                break
-            else:
-                console.print(" [red]ERROR![/red]")
-                print(" en or ru")
+        if not t:
+            print("\n    Available language")
+            print(" 1. English")
+            print(" 2. Russian\n")
+            lang = input("en or ru: ").strip().lower()
+            if lang not in ["1", "2", "en", "ru"]:
+                console.print(" [red]ERROR![/red]\nen or ru")
                 time.sleep(2)
                 clear()
                 continue
-        except (ValueError, KeyboardInterrupt):
-            console.print(" [red]ERROR[/red]")
-            print("en or ru\n")
-            try:
-                time.sleep(1)
-            except KeyboardInterrupt:
-                pass
-            clear()
-        except EOFError:
-            quitapp()
+            lang_code = "en" if lang in ["en", "1"] else "ru"
+            config_app["language"] = lang_code
+            t = language[lang_code]
+            console.print(t["language"])
+
+            answer = Confirm.ask(t["pre_update"])
+            if answer:
+                config_app["pre_update"] = True
+            else:
+                config_app["pre_update"] = False
+
+            console.print("[green]OK[/green]")
+            time.sleep(1)
+
+            console.print(f"1. {t['syntax']}\n2. {t['syntax']}")
+            answer = Confirm.ask(t["style"], choices=["1", "2"])
+            if answer == 1:
+                config_app["style"] = 1
+            else:
+                config_app["style"] = 2
+
+            console.print("[green]OK[/green]")
+            time.sleep(1)
+
+            answer = Confirm.ask(t["smart"])
+            if answer:
+                config_app["smart_shot_prediction"] = True
+            else:
+                config_app["smart_shot_prediction"] = False
+
+            console.print("[green]OK[/green]")
+            time.sleep(1)
+
+            answer = Confirm.ask(t["shot_history"])
+            if answer:
+                config_app["shot_history"] = True
+            else:
+                config_app["shot_history"] = False
+
+            console.print("[green]OK[/green]")
+            with open(DATA_PATH, "w", encoding="utf-8") as f:
+                json.dump(config_app, f, ensure_ascii=False, indent=4)
+            console.print("[yellow][INFO][/yellow] Saving complete!")
+        time.sleep(1)
+        break
 
 
 # Main logic
@@ -271,7 +328,7 @@ def main():
                     console.print(t["chance_c"](chance_c))
                     console.print(t["chance_b"](chance_b))
             console.print(t["round_over"])
-            print(t["history"] + (" ".join(h)))
+            console.print(t["history"] + (" ".join(h)))
             while True:
                 user_input = input(t["continue"])
                 if user_input == "yes" or user_input == "y":
@@ -291,6 +348,7 @@ def main():
 
 
 # GeneraL
+config()
 updater()
 setup()
 main()
