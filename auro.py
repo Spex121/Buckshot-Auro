@@ -252,12 +252,15 @@ def setup():
             time.sleep(1)
 
             while True:
-                console.print(f"1. {t['syntax']}\n2. {t['syntax']}")
-                answer = console.input(t["style"]).strip()
-                if answer not in [1, 2]:
-                    console.print("\n[red]1 or 2[/red]\n")
-                    continue
-                break
+                try:
+                    console.print(f"1. {t['syntax']}\n2. {t['syntax']}")
+                    answer = int(console.input(t["style"]).strip())
+                    if answer not in [1, 2]:
+                        console.print("\n[red]1 or 2[/red]\n")
+                        continue
+                    break
+                except (TypeError, ValueError):
+                    console.print("\n[red]Num only![/red]\n")
             if answer == 1:
                 config_app["style"] = 1
             else:
@@ -305,8 +308,8 @@ def main():
                 console.print(t["syntax2"])
                 user_input = input("x: ")
                 parts = user_input.split("/")
-                blank = int(parts[1])
-                combat = int(parts[0])
+                blank = int(parts[0])
+                combat = int(parts[1])
             total = combat + blank
             console.print(t["help"])
             console.print(t["start"])
@@ -367,7 +370,7 @@ try:
     setup()
     main()
 except Exception as e:
-    if e is EOFError:
+    if isinstance(e, EOFError):
         quitapp()
     console.print(
         "\n[red]Critical error!\nAn emergency shutdown has been triggered[/red]"
