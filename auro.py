@@ -156,7 +156,7 @@ language = {
         "overlayE": "[red]ERROR! Your system does not support overlays![/red]",
         "language": "[green]The language is set![/green]",
         "pre_update": "Would you like to receive pre-releases?",
-        "style": "Select a syntax style:",
+        "style": "Select a syntax style: ",
         "smart": "Would you like to enable the smart shot prediction feature?",
         "shot_history": "Do you want to enable round history?",
     },
@@ -178,7 +178,7 @@ language = {
         "overlayE": "\n[red]ОШИБКА! Ваша система не поддерживает оверлей![/red]",
         "language": "[green]Язык настроен![/green]",
         "pre_update": "Хотите получать предварительные обновления?",
-        "style": "Выберите стиль синтаксиса:",
+        "style": "Выберите стиль синтаксиса: ",
         "smart": "Вы хотите включить функцию умного прогнозирования выстрела?",
         "shot_history": "Вы хотите включить историю раунда?",
     },
@@ -254,7 +254,7 @@ def setup():
 
             while True:
                 try:
-                    console.print(f"1. {t['syntax']}\n2. {t['syntax']}")
+                    console.print(f"1. {t['syntax']}\n2. {t['syntax2']}")
                     answer = int(console.input(t["style"]).strip())
                     if answer not in [1, 2]:
                         console.print("\n[red]1 or 2[/red]\n")
