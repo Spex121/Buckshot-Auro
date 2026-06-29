@@ -77,6 +77,7 @@ def updater():
     else:
         is_prerelease = "[green]stable[/green]"
     console.print(f"New version: {new_version}")
+    console.print(f"Installed version: {current_version}")
     console.print(f"Type: {is_prerelease}")
     while True:
         try:
