@@ -15,7 +15,7 @@ current_version = "v0.1.5-alpha"
 config_app = {
     "language": "",
     "pre_update": None,
-    "style": None,
+    "style": 0,
     "smart_shot_prediction": None,
     "shot_history": None,
 }
@@ -251,13 +251,17 @@ def setup():
             console.print("[green]OK[/green]")
             time.sleep(1)
 
-            console.print(f"1. {t['syntax']}\n2. {t['syntax']}")
-            answer = Confirm.ask(t["style"], choices=["1", "2"])
+            while True:
+                console.print(f"1. {t['syntax']}\n2. {t['syntax']}")
+                answer = console.input(t["style"]).strip()
+                if answer not in [1, 2]:
+                    console.print("\n[red]1 or 2[/red]\n")
+                    continue
+                break
             if answer == 1:
                 config_app["style"] = 1
             else:
                 config_app["style"] = 2
-
             console.print("[green]OK[/green]")
             time.sleep(1)
 
@@ -291,11 +295,18 @@ def main():
         print("BuckShot Auro Script")
         try:
             clear()
-            console.print(t["syntax"])
-            user_input = input("*: ")
-            parts = user_input.split("/")
-            combat = int(parts[0])
-            blank = int(parts[1])
+            if config_app["style"] == 1:
+                console.print(t["syntax"])
+                user_input = input("*: ")
+                parts = user_input.split("/")
+                combat = int(parts[0])
+                blank = int(parts[1])
+            else:
+                console.print(t["syntax2"])
+                user_input = input("x: ")
+                parts = user_input.split("/")
+                blank = int(parts[1])
+                combat = int(parts[0])
             total = combat + blank
             console.print(t["help"])
             console.print(t["start"])
@@ -323,12 +334,14 @@ def main():
                 else:
                     continue
                 if total > 0:
-                    chance_c = round(combat / total * 100, 1)
-                    chance_b = round(blank / total * 100, 1)
-                    console.print(t["chance_c"](chance_c))
-                    console.print(t["chance_b"](chance_b))
+                    if config_app["smart_shot_prediction"]:
+                        chance_c = round(combat / total * 100, 1)
+                        chance_b = round(blank / total * 100, 1)
+                        console.print(t["chance_c"](chance_c))
+                        console.print(t["chance_b"](chance_b))
             console.print(t["round_over"])
-            console.print(t["history"] + (" ".join(h)))
+            if config_app["shot_history"]:
+                console.print(t["history"] + (" ".join(h)))
             while True:
                 user_input = input(t["continue"])
                 if user_input == "yes" or user_input == "y":
@@ -348,7 +361,17 @@ def main():
 
 
 # GeneraL
-config()
-updater()
-setup()
-main()
+try:
+    config()
+    updater()
+    setup()
+    main()
+except Exception as e:
+    if e is EOFError:
+        quitapp()
+    console.print(
+        "\n[red]Critical error!\nAn emergency shutdown has been triggered[/red]"
+    )
+    console.print_exception()
+except KeyboardInterrupt:
+    pass
