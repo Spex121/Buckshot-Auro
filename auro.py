@@ -8,10 +8,11 @@ import json
 from rich.console import Console
 from rich.progress import Progress, TransferSpeedColumn, BarColumn, DownloadColumn
 from rich.prompt import Confirm
+from lang import language
 
 # Base variable
 console = Console()
-current_version = "v0.1.5-alpha"
+current_version = "v0.1.5-beta"
 config_app = {
     "language": "",
     "pre_update": None,
@@ -136,55 +137,6 @@ def updater():
             quitapp()
 
 
-# Localization
-language = {
-    "en": {
-        "syntax": 'Syntax: "Combat/Blank"',
-        "syntax2": 'Syntax: "Blank/Combat"',
-        "start": "[green]Let's start the game![/green]\n",
-        "help": "Plus - combat\nMinus - blank\n",
-        "shot": "Shot?: ",
-        "combat_gone": "\n[red]The combat is gone![/red]\n",
-        "blank_gone": "\n[red]The blank are gone![/red]\n",
-        "result": lambda combat, blank: f"Combat: {combat}\nBlank: {blank}",
-        "chance_c": lambda chance_c: f"Combat chance: {chance_c}%",
-        "chance_b": lambda chance_b: f"Blank chance: {chance_b}%",
-        "round_over": "\n[yellow]The round is over![/yellow]\n",
-        "history": "History: ",
-        "continue": "Continue? (yes or no): ",
-        "overlay": "[green]The overlay is running![/green]",
-        "overlayE": "[red]ERROR! Your system does not support overlays![/red]",
-        "language": "[green]The language is set![/green]",
-        "pre_update": "Would you like to receive pre-releases?",
-        "style": "Select a syntax style: ",
-        "smart": "Would you like to enable the smart shot prediction feature?",
-        "shot_history": "Do you want to enable round history?",
-    },
-    "ru": {
-        "syntax": 'Синтаксис: "Боевые/Холостые"',
-        "syntax2": 'Синтаксис: "Холостые/Боевые"',
-        "start": "[green]Начинаем игру![/green]\n",
-        "help": "Плюс - боевой\nМинус - холостой\n",
-        "shot": "Выстрел?: ",
-        "combat_gone": "\n[red]Боевых нет![/red]\n",
-        "blank_gone": "\n[red]Холостых нет![/red]\n",
-        "result": lambda combat, blank: f"Боевые: {combat}\nХолостые: {blank}",
-        "chance_c": lambda chance_c: f"Шанс на боевой: {chance_c}%",
-        "chance_b": lambda chance_b: f"Шанс на холостой: {chance_b}%",
-        "round_over": "\n[yellow]Раунд окончен![/yellow]\n",
-        "history": "История: ",
-        "continue": "Продолжить? (yes or no): ",
-        "overlay": "[green]Оверлей запущен![/green]",
-        "overlayE": "\n[red]ОШИБКА! Ваша система не поддерживает оверлей![/red]",
-        "language": "[green]Язык настроен![/green]",
-        "pre_update": "Хотите получать предварительные обновления?",
-        "style": "Выберите стиль синтаксиса: ",
-        "smart": "Вы хотите включить функцию умного прогнозирования выстрела?",
-        "shot_history": "Вы хотите включить историю раунда?",
-    },
-}
-
-
 # Quit app
 def quitapp():
     console.print("\n[blue]Quit[/blue]...\n")
@@ -287,8 +239,16 @@ def setup():
             console.print("[green]OK[/green]")
             with open(DATA_PATH, "w", encoding="utf-8") as f:
                 json.dump(config_app, f, ensure_ascii=False, indent=4)
-            console.print("[yellow][INFO][/yellow] Saving complete!")
-        time.sleep(1)
+            console.print("[yellow][INFO][/yellow] Saving complete!\n")
+        time.sleep(0.8)
+        answer = Confirm.ask(t["overlay_ask"])
+        if answer:
+            time.sleep(0.5)
+            console.print("[yellow]Starting...[/yellow]")
+            overlay(t)
+        else:
+            console.print("[red]OK[/red]")
+            time.sleep(0.5)
         break
 
 
@@ -376,6 +336,7 @@ except Exception as e:
     console.print(
         "\n[red]Critical error!\nAn emergency shutdown has been triggered[/red]"
     )
+    time.sleep(1)
     console.print_exception()
 except KeyboardInterrupt:
     pass
